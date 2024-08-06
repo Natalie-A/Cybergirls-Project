@@ -6,7 +6,7 @@ bin-release/
 
 # Other files and folders
 .settings/
-.alertmanager/alertmanager.yml
+/alertmanager/alertmanager.yml
 
 # Executables
 *.swf
