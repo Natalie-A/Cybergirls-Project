@@ -1,0 +1,19 @@
+groups:
+- name: example-alert
+  rules:
+  - alert: HighCpuUsage
+    expr: rate(process_cpu_seconds_total{job="postgres"}[1m]) > avg(rate(process_cpu_seconds_total{job="postgres"}[10m])) by (instance)
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High CPU usage detected"
+      description: "CPU usage for instance {{ $labels.instance }} has been above average for the past 3 minutes."
+  - alert: HighRedisMemoryUsage
+    expr: process_resident_memory_bytes{job="redis"} > 1.34e8
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High Memory usage on Redis"
+      description: "Memory usage on Redis container is above 500MB."

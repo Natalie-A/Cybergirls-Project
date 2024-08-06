@@ -1,0 +1,19 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 10m
+  receiver: 'default'
+
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'aoyanatalie39@gmail.com'
+        from: 'aoyanatalie40@gmail.com'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: 'aoyanatalie40@gmail.com'
+        auth_password: 'bvkt wtqh cfdv xsfc'
+
