@@ -1,19 +1,55 @@
+# global:
+#   resolve_timeout: 5m
+
+# route:
+#   group_by: ['alertname']
+#   group_wait: 30s
+#   group_interval: 5m
+#   repeat_interval: 10m
+#   receiver: 'email'
+
+# receivers:
+#   - name: 'email'
+#     email_configs:
+#       - to: 'woworoseline@gmail.com'
+#         from: 'woworoseline@gmail.com'
+#         smarthost: 'smtp.gmail.com:587'
+#         auth_username: 'woworoseline@gmail.com'
+#         auth_password: 'lbvuxqhgijlvgchh'
+#         # require_tls: true
+
+# # templates:
+# #   - '/etc/alertmanager/*.tmpl'
+
+# # global:
+# #   smtp_smarthost: 'smtp.gmail.com:587'
+# #   smtp_from: 'woworoseline@gmail.com'
+# #   smtp_auth_username: 'woworoseline@gmail.com'
+# #   smtp_auth_password: 'lbvuxqhgijlvgchh'
+# #   smtp_require_tls: true
+
+# # route:
+# #   receiver: 'email'
+
+# # receivers:
+# #   - name: 'email'
+# #     email_configs:
+# #       - to: 'woworoseline@gmail.com'
+# #         send_resolved: true
+
 global:
   resolve_timeout: 5m
 
 route:
-  group_by: ['alertname']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 10m
-  receiver: 'default'
+  receiver: 'telegram'
 
 receivers:
-  - name: 'default'
-    email_configs:
-      - to: 'aoyanatalie39@gmail.com'
-        from: ${username}
-        smarthost: 'smtp.gmail.com:587'
-        auth_username: ${username}
-        auth_password: ${password}
+- name: 'telegram'
+  telegram_configs:
+  - api_url: 'https://api.telegram.org'
+    bot_token: '7037401126:AAEGjDK9yi7_gKeU78bzR1NAv6YQr6Zmuvg'
+    chat_id: 687129325
+    message: '{{ template "telegram.default.message" . }}'
 
+templates:
+- '/etc/alertmanager/template/*.tmpl'

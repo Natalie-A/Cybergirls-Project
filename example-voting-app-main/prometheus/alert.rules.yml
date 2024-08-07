@@ -1,19 +1,197 @@
-groups:
-- name: example-alert
+# groups:
+# - name: example-alert
+#   rules:
+#   - alert: HighCpuUsage
+#     expr: rate(process_cpu_seconds_total{job="postgres"}[1m]) > avg(rate(process_cpu_seconds_total{job="postgres"}[10m])) by (instance)
+#     for: 1m
+#     labels:
+#       severity: critical
+#     annotations:
+#       summary: "High CPU usage detected"
+#       description: "CPU usage for instance {{ $labels.instance }} has been above average for the past 3 minutes."
+#   - alert: HighRedisMemoryUsage
+#     expr: process_resident_memory_bytes{job="redis"} > 1.34e8
+#     for: 1m
+#     labels:
+#       severity: critical
+#     annotations:
+#       summary: "High Memory usage on Redis"
+#       description: "Memory usage on Redis container is above 500MB."
+
+
+groups:      
+- name: redis-alerts
   rules:
-  - alert: HighCpuUsage
-    expr: rate(process_cpu_seconds_total{job="postgres"}[1m]) > avg(rate(process_cpu_seconds_total{job="postgres"}[10m])) by (instance)
+  - alert: RedisMemoryUsageHigh
+    expr: redis_memory_used_bytes > 12582912  # 12MB
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Redis memory usage"
+      description: "Redis memory usage is above 12MB (current value: {{ $value }})."
+  - alert: RedisMemoryUsageCritical
+    expr: redis_memory_used_bytes > 15728640  # 15MB
     for: 1m
     labels:
       severity: critical
     annotations:
-      summary: "High CPU usage detected"
-      description: "CPU usage for instance {{ $labels.instance }} has been above average for the past 3 minutes."
-  - alert: HighRedisMemoryUsage
-    expr: process_resident_memory_bytes{job="redis"} > 1.34e8
+      summary: "Critical Redis memory usage"
+      description: "Redis memory usage is above 15MB (current value: {{ $value }})."
+
+  - alert: RedisCommandLatencyHigh
+    expr: rate(redis_commands_duration_seconds_total[5m]) > 0.1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Redis command latency"
+      description: "Redis command latency is above 100ms (current value: {{ $value }})."
+  - alert: RedisCommandLatencyCritical
+    expr: rate(redis_commands_duration_seconds_total[5m]) > 0.5
     for: 1m
     labels:
       severity: critical
     annotations:
-      summary: "High Memory usage on Redis"
-      description: "Memory usage on Redis container is above 500MB."
+      summary: "Critical Redis command latency"
+      description: "Redis command latency is above 500ms (current value: {{ $value }})."
+
+  - alert: RedisConnectionsHigh
+    expr: redis_connected_clients > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High number of Redis connections"
+      description: "The number of Redis connections is above 50 (current value: {{ $value }})."
+  - alert: RedisConnectionsCritical
+    expr: redis_connected_clients > 100
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical number of Redis connections"
+      description: "The number of Redis connections is above 100 (current value: {{ $value }})."
+
+  - alert: RedisEvictedKeysHigh
+    expr: rate(redis_evicted_keys_total[5m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High rate of Redis evicted keys"
+      description: "The rate of Redis evicted keys is above 10 keys per second (current value: {{ $value }})."
+  - alert: RedisEvictedKeysCritical
+    expr: rate(redis_evicted_keys_total[5m]) > 50
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical rate of Redis evicted keys"
+      description: "The rate of Redis evicted keys is above 50 keys per second (current value: {{ $value }})."
+
+
+# Postgres Alerts
+- name: postgres-alerts
+  rules:
+  - alert: PostgresCPUUsageHigh
+    expr: rate(container_cpu_usage_seconds_total{name="example-voting-app-main-db-1"}[5m]) > 0.5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Postgres CPU usage"
+      description: "Postgres CPU usage is above 50% (current value: {{ $value }})."
+  - alert: PostgresCPUUsageCritical
+    expr: rate(container_cpu_usage_seconds_total{name="example-voting-app-main-db-1"}[5m]) > 0.8
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical Postgres CPU usage"
+      description: "Postgres CPU usage is above 80% (current value: {{ $value }})."
+
+  - alert: PostgresMemoryUsageHigh
+    expr: container_memory_usage_bytes{name="example-voting-app-main-db-1"} > 12582912  # 12MB
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Postgres memory usage"
+      description: "Postgres memory usage is above 12MB (current value: {{ $value }})."
+  - alert: PostgresMemoryUsageCritical
+    expr: container_memory_usage_bytes{name="example-voting-app-main-db-1"} > 15728640  # 15MB
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical Postgres memory usage"
+      description: "Postgres memory usage is above 15MB (current value: {{ $value }})."
+
+  - alert: PostgresSlowQueries
+    expr: rate(pg_settings_track_activity_query_size_bytes[5m]) > 1
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Postgres query duration"
+      description: "Postgres query duration is above 1 second (current value: {{ $value }})."
+  - alert: PostgresSlowQueriesCritical
+    expr: rate(pg_settings_track_activity_query_size_bytes[5m]) > 5
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical Postgres query duration"
+      description: "Postgres query duration is above 5 seconds (current value: {{ $value }})."
+
+  - alert: PostgresDiskIOHigh
+    expr: rate(container_fs_writes_total{name="example-voting-app-main-db-1"}[5m]) > 10485760  # 10MB/s
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Postgres disk I/O"
+      description: "Postgres disk I/O is above 10MB/s (current value: {{ $value }})."
+  - alert: PostgresDiskIOCritical
+    expr: rate(container_fs_writes_total{name="example-voting-app-main-db-1"}[5m]) > 52428800  # 50MB/s
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical Postgres disk I/O"
+      description: "Postgres disk I/O is above 50MB/s (current value: {{ $value }})."
+
+  - alert: PostgresConnectionsHigh
+    expr: pg_stat_activity_count{state="active"} > 50
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High number of Postgres connections"
+      description: "The number of active Postgres connections is above 50 (current value: {{ $value }})."
+  - alert: PostgresConnectionsCritical
+    expr: pg_stat_activity_count{state="active"} > 100
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical number of Postgres connections"
+      description: "The number of active Postgres connections is above 100 (current value: {{ $value }})."
+
+  - alert: PostgresLocksHigh
+    expr: pg_locks_count > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High number of Postgres locks"
+      description: "The number of Postgres locks is above 10 (current value: {{ $value }})."
+  - alert: PostgresLocksCritical
+    expr: pg_locks_count > 20
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical number of Postgres locks"
+      description: "The number of Postgres locks is above 20 (current value: {{ $value }})."
