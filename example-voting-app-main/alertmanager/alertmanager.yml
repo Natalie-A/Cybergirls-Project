@@ -2,18 +2,7 @@ global:
   resolve_timeout: 5m
 
 route:
-  group_by: ['alertname']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 10m
-  receiver: 'default'
+  receiver: 'telegram'
 
 receivers:
-  - name: 'default'
-    email_configs:
-      - to: 'azilafupriscilla@gmail.com'
-        from: 'azilafupriscilla@gmail.com'
-        smarthost: 'smtp.gmail.com:587'
-        auth_username: 'azilafupriscilla@gmail.com'
-        auth_password: 'onna zjfd xdmt zjbh'
-
+  

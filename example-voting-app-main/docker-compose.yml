@@ -138,6 +138,27 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
 
+  locust:
+    image: locustio/locust
+    ports:
+      - "8089:8089"  # Expose Prometheus metrics
+    volumes:
+      - ./locustfile.py:/mnt/locust/locustfile.py
+    networks:
+      - back-tier
+    command: -f /mnt/locust/locustfile.py --host http://vote:80
+
+  locust-exporter:
+    image: containersol/locust_exporter
+    environment:
+        - LOCUST_EXPORTER_URI=http://locust:8089
+    depends_on:
+        - locust
+    ports:
+      - "9646:9646"
+    networks:
+      - back-tier
+
   seed:
     build: ./seed-data
     profiles: ["seed"]
