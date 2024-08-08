@@ -11,9 +11,9 @@ route:
 receivers:
   - name: 'default'
     email_configs:
-      - to: 'aoyanatalie39@gmail.com'
-        from: ${username}
+      - to: 'azilafupriscilla@gmail.com'
+        from: 'azilafupriscilla@gmail.com'
         smarthost: 'smtp.gmail.com:587'
-        auth_username: ${username}
-        auth_password: ${password}
+        auth_username: 'azilafupriscilla@gmail.com'
+        auth_password: 'onna zjfd xdmt zjbh'
 
